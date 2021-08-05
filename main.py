@@ -11,7 +11,7 @@ import jieba
 
 
 
-jieba.load_userdict(path.join(path.dirname(__file__),'userdict//userdict.txt')) # 导入用户自定义词典
+jieba.load_userdict(path.join(path.dirname(__file__),'userdict//userdict.txt')) # 支持导入用户自定义词典
 
 
 
@@ -21,19 +21,19 @@ def generate_wordcloud(text, shape, wordcloud_name):
     '''
     # 设置显示方式
     d=path.dirname(__file__)
-    alice_mask = np.array(Image.open(path.join(d, shape)))
+    shape = np.array(Image.open(path.join(d, shape)))
     font_path=path.join(d,"font//msyh.ttf")
     stopwords = set(STOPWORDS)
     wc = WordCloud(background_color="white",# 设置背景颜色
            max_words=2000, # 词云显示的最大词数  
-           mask=alice_mask,# 设置背景图片       
+           mask=shape,# 设置背景图片       
            stopwords=stopwords, # 设置停用词
            font_path=font_path, # 兼容中文字体，不然中文会显示乱码
                   )
     # 生成词云 
     wc.generate(text)
     # 生成的词云图像保存到本地
-    wc.to_file(path.join(d, "wordcloud_dir/"+wordcloud_name))
+    wc.to_file(path.join(d, "doc//" + wordcloud_name + ".png"))
     # 显示图像
     plt.imshow(wc, interpolation='bilinear')
     # interpolation='bilinear' 表示插值方法为双线性插值
@@ -65,7 +65,8 @@ def word_segment(text):
 if __name__=='__main__':
 
     print('请输入data_source目录下的数据文件名称(带后缀，目前仅支持.csv/.txt)')
-    file_path = input()
+    file_path = "data_source//" + input()
+
 
     # 判断文件的类型
     if file_path.endswith('.csv'):
@@ -93,4 +94,26 @@ if __name__=='__main__':
 
 
     # 创建字典
-    shape_dict={"1":"", "2":"", "3":"", "4":""}
+    shape_dict={"1":"shape//Round.png", "2":"shape//Square.png", "3":"shape//Rectangular.png", "4":"shape//Love.png"}
+
+
+    # 判断词云形状
+    if wordcloud_shape in shape_dict:
+        shape=shape_dict[wordcloud_shape]
+    else:
+        print('词云形状错误')
+        exit(0)
+
+
+    # 输入输出词云的图片名称
+    print('请输入要生成的词云图片名称(不带后缀)')
+    wordcloud_name = input()
+
+
+    # 若是中文文本，则先进行分词操作
+    text = word_segment(text)
+    
+
+    # 生成词云
+    generate_wordcloud(text, shape, wordcloud_name)
+
